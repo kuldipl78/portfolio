@@ -8,11 +8,11 @@ const router = express.Router();
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const connection = getConnection();
-    const [skills] = await connection.execute('SELECT * FROM skills ORDER BY category, name');
+    const pool = getConnection();
+    const result = await pool.query('SELECT * FROM skills ORDER BY category, name');
     
     // Group skills by category
-    const groupedSkills = skills.reduce((acc, skill) => {
+    const groupedSkills = result.rows.reduce((acc, skill) => {
       if (!acc[skill.category]) {
         acc[skill.category] = [];
       }
@@ -44,16 +44,13 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: 'Invalid category' });
     }
 
-    const connection = getConnection();
-    const [result] = await connection.execute(
-      'INSERT INTO skills (name, category) VALUES (?, ?)',
+    const pool = getConnection();
+    const result = await pool.query(
+      'INSERT INTO skills (name, category) VALUES ($1, $2) RETURNING *',
       [name, category]
     );
 
-    // Get the newly created skill
-    const [newSkill] = await connection.execute('SELECT * FROM skills WHERE id = ?', [result.insertId]);
-    
-    res.status(201).json(newSkill[0]);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server error');
@@ -65,10 +62,10 @@ router.post('/', authMiddleware, async (req, res) => {
 // @access  Private
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
-    const connection = getConnection();
-    const [result] = await connection.execute('DELETE FROM skills WHERE id = ?', [req.params.id]);
+    const pool = getConnection();
+    const result = await pool.query('DELETE FROM skills WHERE id = $1 RETURNING *', [req.params.id]);
     
-    if (result.affectedRows === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Skill not found' });
     }
 

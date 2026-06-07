@@ -1,21 +1,19 @@
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const dbConfig = {
+const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-};
-
-let connection;
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 5432
+});
 
 const connectDB = async () => {
   try {
-    connection = await mysql.createConnection(dbConfig);
-    console.log('MySQL Connected Successfully');
-    
-    // Create tables if they don't exist
+    const client = await pool.connect();
+    console.log('PostgreSQL Connected Successfully');
+    client.release();
     await createTables();
   } catch (error) {
     console.error('Database connection failed:', error.message);
@@ -26,20 +24,20 @@ const connectDB = async () => {
 const createTables = async () => {
   try {
     // Create users table
-    await connection.execute(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         username VARCHAR(100) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
     // Create projects table
-    await connection.execute(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS projects (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT NOT NULL,
         technologies VARCHAR(500) NOT NULL,
@@ -50,30 +48,30 @@ const createTables = async () => {
     `);
 
     // Create skills table
-    await connection.execute(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS skills (
-        id INT AUTO_INCREMENT PRIMARY KEY,
+        id SERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
-        category ENUM('Languages', 'Frontend', 'Backend', 'Tools', 'CS Fundamentals') NOT NULL,
+        category VARCHAR(50) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
     // Insert default users if table is empty
-    const [users] = await connection.execute('SELECT COUNT(*) as count FROM users');
-    if (users[0].count === 0) {
+    const usersResult = await pool.query('SELECT COUNT(*) FROM users');
+    if (parseInt(usersResult.rows[0].count) === 0) {
       await insertDefaultUsers();
     }
 
     // Insert default projects if table is empty
-    const [projects] = await connection.execute('SELECT COUNT(*) as count FROM projects');
-    if (projects[0].count === 0) {
+    const projectsResult = await pool.query('SELECT COUNT(*) FROM projects');
+    if (parseInt(projectsResult.rows[0].count) === 0) {
       await insertDefaultProjects();
     }
 
     // Insert default skills if table is empty
-    const [skills] = await connection.execute('SELECT COUNT(*) as count FROM skills');
-    if (skills[0].count === 0) {
+    const skillsResult = await pool.query('SELECT COUNT(*) FROM skills');
+    if (parseInt(skillsResult.rows[0].count) === 0) {
       await insertDefaultSkills();
     }
 
@@ -90,8 +88,8 @@ const insertDefaultUsers = async () => {
   ];
 
   for (const user of defaultUsers) {
-    await connection.execute(
-      'INSERT INTO users (username, password) VALUES (?, ?)',
+    await pool.query(
+      'INSERT INTO users (username, password) VALUES ($1, $2)',
       [user.username, user.password]
     );
   }
@@ -130,8 +128,8 @@ const insertDefaultProjects = async () => {
   ];
 
   for (const project of defaultProjects) {
-    await connection.execute(
-      'INSERT INTO projects (title, description, technologies, live_url, github_url) VALUES (?, ?, ?, ?, ?)',
+    await pool.query(
+      'INSERT INTO projects (title, description, technologies, live_url, github_url) VALUES ($1, $2, $3, $4, $5)',
       [project.title, project.description, project.technologies, project.live_url, project.github_url]
     );
   }
@@ -160,13 +158,13 @@ const insertDefaultSkills = async () => {
   ];
 
   for (const skill of defaultSkills) {
-    await connection.execute(
-      'INSERT INTO skills (name, category) VALUES (?, ?)',
+    await pool.query(
+      'INSERT INTO skills (name, category) VALUES ($1, $2)',
       [skill.name, skill.category]
     );
   }
 };
 
-const getConnection = () => connection;
+const getConnection = () => pool;
 
 module.exports = { connectDB, getConnection };

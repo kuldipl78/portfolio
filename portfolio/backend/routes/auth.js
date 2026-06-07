@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const { getConnection } = require('../config/database');
 const router = express.Router();
 
@@ -17,20 +16,17 @@ router.post('/login', async (req, res) => {
     }
 
     // Query users table
-    const connection = getConnection();
-    const [rows] = await connection.execute(
-      'SELECT * FROM users WHERE username = ?',
-      [username]
-    );
+    const pool = getConnection();
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
     // Check if user exists
-    if (rows.length === 0) {
+    if (result.rows.length === 0) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const user = rows[0];
+    const user = result.rows[0];
 
-    // Compare passwords (direct comparison for plain text, or bcrypt.compare for hashed)
+    // Compare passwords (direct comparison for plain text)
     const isPasswordValid = password === user.password;
 
     if (!isPasswordValid) {
