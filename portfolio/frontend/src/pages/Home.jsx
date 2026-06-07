@@ -6,8 +6,8 @@ const Home = () => {
   const carouselItems = [
     {
       title: 'Full-Stack Developer',
-      subtitle: 'React • Node.js • FastAPI',
-      description: '2+ years of experience building modern web applications'
+      subtitle: 'React • Node.js',
+      description: '3+ years of experience building modern web applications'
     },
     {
       title: 'IEEE Published Researcher',
@@ -17,6 +17,11 @@ const Home = () => {
     {
       title: 'React Native Developer',
       subtitle: 'Mobile App Development',
+      description: 'Cross-platform mobile applications with React Native'
+    },
+    {
+      title: 'Menu Mitra',
+      subtitle: 'Menu Mitra is a restaurant management system that streamlines operations and enhances customer experience. It offers features like digital menu creation, order management, and analytics to help restaurants optimize their services.',
       description: 'Cross-platform mobile applications with React Native'
     }
   ];
@@ -35,7 +40,7 @@ const Home = () => {
 
   const achievements = [
     {
-      number: '2+',
+      number: '3+',
       label: 'Years Experience',
       description: 'Professional development'
     },

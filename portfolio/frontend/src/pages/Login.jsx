@@ -29,6 +29,8 @@ const Login = () => {
     setIsSubmitting(true);
     
     const result = await login(formData.username, formData.password);
+
+    localStorage.setItem('username', formData.username);
     
     setIsSubmitting(false);
   };

@@ -17,6 +17,7 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
+    localStorage.clear();
     setIsMenuOpen(false);
   };
 

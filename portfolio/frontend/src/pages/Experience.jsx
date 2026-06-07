@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiMapPin, FiCalendar, FiTrendingUp, FiUsers, FiAward } from 'react-icons/fi';
-
+import myImage from './image.png';
 const Experience = () => {
   const experience = [
     {
@@ -9,24 +9,13 @@ const Experience = () => {
       positions: [
         {
           title: 'Associate Developer',
-          period: 'Aug 2023 – Present',
+          period: 'Jun 2023 – Present',
           type: 'Full-time',
           current: true
         }
       ]
     },
-    {
-      company: 'Shiash Info Solutions Private Limited',
-      location: 'Pune, Maharashtra',
-      positions: [
-        {
-          title: 'Software Development Intern',
-          period: 'Jan 2023 – Jul 2023',
-          type: 'Internship',
-          current: false
-        }
-      ]
-    }
+
   ];
 
   const projectDetails = {
@@ -93,16 +82,16 @@ const Experience = () => {
       field: 'Computer Engineering'
     },
     {
-      degree: 'Full-Stack Development Certification',
+      Course: 'Full-Stack Development Certification',
       institution: 'Nxtwave',
       period: '2022 – 2023',
       field: 'MERN Stack Development'
     },
     {
-      degree: 'Diploma in Computer Engineering',
+      degree: 'Diploma in Electrical Engineering',
       institution: 'Government Polytechnic Gondia',
       period: '2016 – 2019',
-      field: 'Computer Engineering'
+      field: 'Electrical Engineering'
     }
   ];
 
@@ -118,6 +107,34 @@ const Experience = () => {
     'Problem Solving',
     'Agile Development'
   ];
+
+  const screenshotPlan = [
+    {
+      title: 'Before 1 - Sync UX',
+      description: 'Old sync/loading experience with minimal progress visibility.'
+    },
+    {
+      title: 'After 1 - Sync Progress',
+      description: 'Sync screen with phase-wise progress for sections, tables, orders, and inventory.'
+    },
+    {
+      title: 'Before 2 - Offline Status',
+      description: 'Generic offline behavior without clear status or metrics.'
+    },
+    {
+      title: 'After 2 - Offline Metrics',
+      description: 'Offline stats showing record counts, used size, last sync, and status by record type.'
+    },
+    {
+      title: 'Before 3 - Network Disruption',
+      description: 'Error-prone UX during API/network interruption.'
+    },
+    {
+      title: 'After 3 - Fallback Continuity',
+      description: 'Automatic offline fallback with cached data continuity.'
+    }
+  ];
+
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -280,6 +297,37 @@ const Experience = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Menumtra Case Study */}
+        <div className="mt-16 bg-white rounded-lg shadow-md p-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">
+            Menumtra Case Study: Offline-First, Realtime, and Reliable Sync
+          </h2>
+          <p className="text-gray-700 mb-8">
+            This case study highlights the architecture and engineering decisions used to keep restaurant
+            operations stable during weak or unstable internet while maintaining realtime behavior when connected.
+          </p>
+          <div className='mb-10'>
+              <img src={myImage} alt="Dynamic" />
+          </div>
+
+
+
+  
+
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Before / After Screenshot Plan</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {screenshotPlan.map((item, index) => (
+                <div key={index} className="border border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+                  <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                  <p className="text-sm text-gray-600 mt-1">{item.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

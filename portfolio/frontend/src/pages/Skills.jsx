@@ -75,6 +75,9 @@ const Skills = () => {
     );
   }
 
+  const loginUser = localStorage.getItem('username');
+  console.log('Logged in user:', loginUser);
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,7 +88,7 @@ const Skills = () => {
             A comprehensive overview of my technical expertise across different domains of software development.
           </p>
           
-          {isAuthenticated && (
+          {isAuthenticated && loginUser?.username === 'kuldipl09' && (
             <button
               onClick={() => setIsFormOpen(true)}
               className="mt-6 btn-primary flex items-center space-x-2 mx-auto"
