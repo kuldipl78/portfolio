@@ -25,6 +25,17 @@ const connectDB = async () => {
 
 const createTables = async () => {
   try {
+    // Create users table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(100) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+
     // Create projects table
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS projects (
@@ -48,6 +59,12 @@ const createTables = async () => {
       )
     `);
 
+    // Insert default users if table is empty
+    const [users] = await connection.execute('SELECT COUNT(*) as count FROM users');
+    if (users[0].count === 0) {
+      await insertDefaultUsers();
+    }
+
     // Insert default projects if table is empty
     const [projects] = await connection.execute('SELECT COUNT(*) as count FROM projects');
     if (projects[0].count === 0) {
@@ -63,6 +80,20 @@ const createTables = async () => {
     console.log('Database tables created successfully');
   } catch (error) {
     console.error('Error creating tables:', error.message);
+  }
+};
+
+const insertDefaultUsers = async () => {
+  const defaultUsers = [
+    { username: 'kuldipl09', password: 'Kuldip@7887' },
+    { username: 'omkarl09', password: 'Omkar@7887' }
+  ];
+
+  for (const user of defaultUsers) {
+    await connection.execute(
+      'INSERT INTO users (username, password) VALUES (?, ?)',
+      [user.username, user.password]
+    );
   }
 };
 

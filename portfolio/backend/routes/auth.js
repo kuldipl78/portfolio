@@ -1,16 +1,11 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { getConnection } = require('../config/database');
 const router = express.Router();
 
-// Hardcoded user credentials
-const VALID_USER = {
-  username: 'kuldipl09',
-  password: 'Kuldip@7887'
-};
-
 // @route   POST /api/auth/login
-// @desc    Login user
+// @desc    Login user with credentials from users table
 // @access  Public
 router.post('/login', async (req, res) => {
   try {
@@ -21,15 +16,32 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Please provide username and password' });
     }
 
-    // Check credentials
-    if (username !== VALID_USER.username || password !== VALID_USER.password) {
+    // Query users table
+    const connection = getConnection();
+    const [rows] = await connection.execute(
+      'SELECT * FROM users WHERE username = ?',
+      [username]
+    );
+
+    // Check if user exists
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const user = rows[0];
+
+    // Compare passwords (direct comparison for plain text, or bcrypt.compare for hashed)
+    const isPasswordValid = password === user.password;
+
+    if (!isPasswordValid) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     // Create JWT token
     const payload = {
       user: {
-        username: VALID_USER.username
+        id: user.id,
+        username: user.username
       }
     };
 
@@ -42,7 +54,8 @@ router.post('/login', async (req, res) => {
         res.json({
           token,
           user: {
-            username: VALID_USER.username
+            id: user.id,
+            username: user.username
           }
         });
       }
