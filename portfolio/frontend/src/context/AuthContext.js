@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -99,7 +99,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username, password) => {
+  const login = useCallback(async (username, password) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       const response = await axios.post('/api/auth/login', { username, password });
@@ -121,23 +121,28 @@ export const AuthProvider = ({ children }) => {
       });
       return { success: false, error: errorMessage };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     dispatch({ type: 'LOGOUT' });
-  };
+  }, []);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{
+  const authContextValue = useMemo(
+    () => ({
       ...state,
       login,
       logout,
       clearError
-    }}>
+    }),
+    [state, login, logout, clearError]
+  );
+
+  return (
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );
